@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
-#ifdef __unix__
+#ifdef __unix__ 
 
-    // includes para linux
+    #include <dirent.h>
+
+    FILE *a;
+    char linea[100];
 
 #elif defined(_WIN32) || defined(WIN32)
 
     // includes para windows
+
 #endif
 
 void esperar(){
@@ -45,7 +50,22 @@ void kernel_version(){
 
     #ifdef __unix__
 
+        if ((a = fopen("/proc/version", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
 
+            while (!feof(a)){
+                fgets(linea, sizeof(linea), a);
+                
+                if(strstr(linea, "Linux version")){
+                    printf("%s", linea);
+                }
+            }
+
+        }
+
+        fclose(a);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -57,6 +77,42 @@ void running_processes(){
 
     #ifdef __unix__
 
+        DIR *dir;
+        struct dirent *ent;
+        int x = 0;
+        bool flag;
+
+        dir = opendir("/proc/");
+
+        if (dir == NULL){
+            printf("No se puede abrir el directorio.");
+
+        }else{  
+
+            while((ent = readdir (dir)) != NULL){
+                // Nos devolverá el directorio actual 
+                flag = true;
+
+                for(int i=0; i<strlen(ent->d_name); i++){
+                    if(!isdigit(ent->d_name[i])){
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if(flag){
+
+                    //printf("%s\n", ent->d_name); //Imprime cada proceso encontrado
+                    x++;
+
+                }
+            }
+
+            printf("Actualmente existen %i procesos activos.", x);
+            closedir (dir);
+
+        }
+
     #elif defined(_WIN32) || defined(WIN32)
 
     #endif 
@@ -66,6 +122,23 @@ void running_processes(){
 void mem_total(){
 
     #ifdef __unix__
+
+        if ((a = fopen("/proc/meminfo", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
+
+            while (!feof(a)){
+                fgets(linea, sizeof(linea), a);
+                
+                if(strstr(linea, "MemTotal")){
+                    printf("%s", linea);
+                }
+            }
+
+        }
+
+        fclose(a);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -77,6 +150,25 @@ void mem_total_free(){
 
     #ifdef __unix__
 
+        
+
+        if ((a = fopen("/proc/meminfo", "r")) == NULL){
+            printf("No se puede abrir el archivo");
+            
+        }else{
+
+            while (!feof(a)){
+                fgets(linea, sizeof(linea), a);
+                
+                if(strstr(linea, "MemFree")){
+                    printf("%s", linea);
+                }
+            }
+
+        }
+
+        fclose(a);
+
     #elif defined(_WIN32) || defined(WIN32)
 
     #endif 
@@ -87,6 +179,23 @@ void mem_swap(){
 
     #ifdef __unix__
 
+        if ((a = fopen("/proc/meminfo", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
+
+            while (!feof(a)){
+                fgets(linea, sizeof(linea), a);
+                
+                if(strstr(linea, "SwapTotal")){
+                    printf("%s", linea);
+                }
+            }
+
+        }
+
+        fclose(a);
+
     #elif defined(_WIN32) || defined(WIN32)
 
     #endif 
@@ -96,6 +205,23 @@ void mem_swap(){
 void mem_swap_free(){
 
     #ifdef __unix__
+
+        if ((a = fopen("/proc/meminfo", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
+
+            while (!feof(a)){
+                fgets(linea, sizeof(linea), a);
+                
+                if(strstr(linea, "SwapFree")){
+                    printf("%s", linea);
+                }
+            }
+
+        }
+
+        fclose(a);
 
     #elif defined(_WIN32) || defined(WIN32)
 
