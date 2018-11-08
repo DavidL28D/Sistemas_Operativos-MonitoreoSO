@@ -48,16 +48,6 @@ void limpiar(){
 
 // ***** SECCION DEL SISTEMA *****
 
-void current_user(){
-
-    #ifdef __unix__
-
-    #elif defined(_WIN32) || defined(WIN32)
-
-    #endif 
-
-}
-
 void kernel_version(){
 
     #ifdef __unix__
@@ -133,7 +123,15 @@ void running_processes(){
 
 }
 
+void current_user(){
 
+    #ifdef __unix__
+
+    #elif defined(_WIN32) || defined(WIN32)
+
+    #endif 
+
+}
 
 void date_time(){
 
