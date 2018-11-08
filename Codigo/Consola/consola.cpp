@@ -1,11 +1,11 @@
 #include "../libreria.h"
 
 int main(int argc, char **argv){
-
+	
     if(argc < 3){
 
         if(strcmp(argv[1], "--kernel-version") == 0){
-            kernel_version();            
+        	kernel_version();            
 
         }else if(strcmp(argv[1], "--running-processes") == 0){
             running_processes();

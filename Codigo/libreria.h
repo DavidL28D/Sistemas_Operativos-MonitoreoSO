@@ -77,7 +77,6 @@ void info(char *valor, int x){
 }
 
 // ***** SECCION DEL SISTEMA *****
-
 void kernel_version(){
 
     #ifdef __unix__
@@ -112,6 +111,22 @@ void kernel_version(){
         info(token, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
+
+        /*
+        FILE *pipe;
+        char buf[128];
+        pipe = _popen("ver","r"); // escribe el resultado de dir en pipe
+        printf("holahola");
+        fgets (buf, 128,pipe);
+        printf("Version del kernel: %s",buf);
+        */
+        system("ver");
+        system("ver>>.info.txt");
+        //char cmd[30]="";
+        //strcat(cmd, "C:/Windows/System32/attrib +h ");
+        //strcat(cmd, ARCHIVO );
+        //system(cmd);
+        system("C:/Windows/System32/attrib +h .info.txt");
 
     #endif 
 
@@ -180,6 +195,47 @@ void running_processes(){
 
     #elif defined(_WIN32) || defined(WIN32)
 
+        //system("C://Windows/System32/TASKLIST >> procesos.txt");
+        FILE *pipe,*arc;
+        char buf[128];
+        int cantProcesos=0;
+        printf("Abriendo la Tubería de lectura\n");
+        pipe = _popen("C://Windows/System32/TASKLIST","r"); // escribe el resultado de dir en pipe
+
+        if(!pipe){
+
+            printf("Tuberia no accedida.\n");
+
+        }else{
+
+            while (fgets(buf, 128, pipe) != NULL) {
+
+                cantProcesos++;
+
+            }
+
+        }
+
+        printf("Hay %d procesos.",(cantProcesos)-3);
+        _pclose(pipe);
+        arc=fopen(".info.txt","a");
+
+        if(arc == NULL){
+
+            printf("No Se puede abrir el archivo");
+
+        }else{
+
+            fprintf(arc,"%d",(cantProcesos)-3);
+
+        }
+        char cmd[30]="";
+        strcat(cmd, "C:/Windows/System32/attrib +h ");
+        strcat(cmd, ARCHIVO );
+        fclose(arc);
+        system(cmd);
+        //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
+        
     #endif 
 
 }
@@ -257,7 +313,6 @@ void uptime(){
 
 
 // ***** SECCION DE MEMORIA *****
-
 void mem_total(){
 
     #ifdef __unix__
@@ -524,7 +579,6 @@ void partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
-
 void net_list(){
 
     #ifdef __unix__
@@ -546,7 +600,6 @@ void net_list_ip(){
 }
 
 // ***** SECCION DE AYUDA *****
-
 void help(){
 
     printf("             COMANDO - FUNCION\n\n");
