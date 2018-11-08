@@ -46,6 +46,18 @@ void limpiar(){
 
 }
 
+// ***** SECCION DEL SISTEMA *****
+
+void current_user(){
+
+    #ifdef __unix__
+
+    #elif defined(_WIN32) || defined(WIN32)
+
+    #endif 
+
+}
+
 void kernel_version(){
 
     #ifdef __unix__
@@ -55,12 +67,14 @@ void kernel_version(){
             
         }else{
 
+            fgets(linea, sizeof(linea), a);
             while (!feof(a)){
-                fgets(linea, sizeof(linea), a);
                 
                 if(strstr(linea, "Linux version")){
                     printf("%s", linea);
                 }
+                fgets(linea, sizeof(linea), a);
+
             }
 
         }
@@ -119,21 +133,111 @@ void running_processes(){
 
 }
 
+
+
+void date_time(){
+
+    #ifdef __unix__
+        system("date");
+
+    #elif defined(_WIN32) || defined(WIN32)
+
+    #endif 
+
+}
+
+void uptime(){
+
+    #ifdef __unix__
+
+        int pos;
+        char aux[strlen(linea)];
+
+
+        if ((a = fopen("/proc/uptime", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
+
+            fgets(linea, sizeof(linea), a);
+
+            while (!feof(a)){
+
+                pos = 0;
+                //printf("%s\n", linea); // imprime la linea extraida del archivo
+
+                for(int i=0; i<strlen(linea); i++){
+
+                    if(isdigit(linea[i])){
+
+                        aux[pos] = linea[i];
+                        pos++;
+
+                    }else if(linea[i] == '.'){
+
+                        break;
+
+                    }
+                }
+
+                printf("Tiempo activo de la maquina expresado en segundos: %i\n", atoi(aux));
+                fgets(linea, sizeof(linea), a);
+
+            }
+
+        }
+
+        fclose(a);
+
+    #elif defined(_WIN32) || defined(WIN32)
+
+    #endif 
+
+}
+
+
+// ***** SECCION DE MEMORIA *****
+
 void mem_total(){
 
     #ifdef __unix__
+
+        char aux[strlen(linea)];
+        int pos;
 
         if ((a = fopen("/proc/meminfo", "r")) == NULL){
         printf("No se puede abrir el archivo");
             
         }else{
 
+            fgets(linea, sizeof(linea), a);
             while (!feof(a)){
-                fgets(linea, sizeof(linea), a);
-                
+
                 if(strstr(linea, "MemTotal")){
-                    printf("%s", linea);
+
+                    pos = 0;
+                    //printf("%s\n", linea); // imprime la linea extraida del archivo
+
+                    for(int i=0; i<strlen(linea); i++){
+
+                        if(isdigit(linea[i])){
+
+                            aux[pos] = linea[i];
+                            pos++;
+
+                        }
+                    }
+
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
+                    break;
+
                 }
+
+                fgets(linea, sizeof(linea), a);
+
             }
 
         }
@@ -150,19 +254,41 @@ void mem_total_free(){
 
     #ifdef __unix__
 
-        
+        int pos;
+        char aux[strlen(linea)];
 
         if ((a = fopen("/proc/meminfo", "r")) == NULL){
             printf("No se puede abrir el archivo");
             
         }else{
 
+            fgets(linea, sizeof(linea), a);
             while (!feof(a)){
-                fgets(linea, sizeof(linea), a);
-                
+
                 if(strstr(linea, "MemFree")){
-                    printf("%s", linea);
+
+                    pos = 0;
+                    //printf("%s\n", linea); // imprime la linea extraida del archivo
+
+                    for(int i=0; i<strlen(linea); i++){
+
+                        if(isdigit(linea[i])){
+
+                            aux[pos] = linea[i];
+                            pos++;
+
+                        }
+                    }
+
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
+                    break;
                 }
+
+                fgets(linea, sizeof(linea), a);
+
             }
 
         }
@@ -179,17 +305,42 @@ void mem_swap(){
 
     #ifdef __unix__
 
+        int pos;
+        char aux[strlen(linea)];
+
         if ((a = fopen("/proc/meminfo", "r")) == NULL){
         printf("No se puede abrir el archivo");
             
         }else{
 
+            fgets(linea, sizeof(linea), a);
             while (!feof(a)){
-                fgets(linea, sizeof(linea), a);
                 
                 if(strstr(linea, "SwapTotal")){
-                    printf("%s", linea);
+                    
+                    pos = 0;
+                    //printf("%s\n", linea); // imprime la linea extraida del archivo
+
+                    for(int i=0; i<strlen(linea); i++){
+
+                        if(isdigit(linea[i])){
+
+                            aux[pos] = linea[i];
+                            pos++;
+
+                        }
+                    }
+
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
+                    break;
+
                 }
+
+                fgets(linea, sizeof(linea), a);
+
             }
 
         }
@@ -206,17 +357,42 @@ void mem_swap_free(){
 
     #ifdef __unix__
 
+        int pos;
+        char aux[strlen(linea)];
+
         if ((a = fopen("/proc/meminfo", "r")) == NULL){
         printf("No se puede abrir el archivo");
             
         }else{
 
+            fgets(linea, sizeof(linea), a);
             while (!feof(a)){
-                fgets(linea, sizeof(linea), a);
                 
                 if(strstr(linea, "SwapFree")){
-                    printf("%s", linea);
+
+                    pos = 0;
+                    //printf("%s\n", linea); // imprime la linea extraida del archivo
+
+                    for(int i=0; i<strlen(linea); i++){
+
+                        if(isdigit(linea[i])){
+
+                            aux[pos] = linea[i];
+                            pos++;
+
+                        }
+                    }
+
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
+                    break;
+
                 }
+
+                fgets(linea, sizeof(linea), a);
+
             }
 
         }
@@ -229,7 +405,21 @@ void mem_swap_free(){
 
 }
 
+// ***** SECCION DE DISCO *****
+
 void disk_list(){
+
+    #ifdef __unix__
+
+
+
+    #elif defined(_WIN32) || defined(WIN32)
+
+    #endif 
+
+}
+
+void disk_space(){
 
     #ifdef __unix__
 
@@ -243,11 +433,33 @@ void partitions_list(){
 
     #ifdef __unix__
 
+        if ((a = fopen("/proc/partitions", "r")) == NULL){
+        printf("No se puede abrir el archivo");
+            
+        }else{
+
+            for(int i=0; i<3; i++){
+                fgets(linea, sizeof(linea), a);
+            }
+            
+            while (!feof(a)){
+                
+                printf("%s", linea);
+                fgets(linea, sizeof(linea), a);
+                
+            }
+
+        }
+
+        fclose(a);
+
     #elif defined(_WIN32) || defined(WIN32)
 
     #endif 
 
 }
+
+// ***** SECCION DE REDES *****
 
 void net_list(){
 
@@ -269,62 +481,32 @@ void net_list_ip(){
 
 }
 
-void disk_space(){
-
-    #ifdef __unix__
-
-    #elif defined(_WIN32) || defined(WIN32)
-
-    #endif 
-
-}
-
-void current_user(){
-
-    #ifdef __unix__
-
-    #elif defined(_WIN32) || defined(WIN32)
-
-    #endif 
-
-}
-
-void date_time(){
-
-    #ifdef __unix__
-
-    #elif defined(_WIN32) || defined(WIN32)
-
-    #endif 
-
-}
-
-void uptime(){
-
-    #ifdef __unix__
-
-    #elif defined(_WIN32) || defined(WIN32)
-
-    #endif 
-
-}
+// ***** SECCION DE AYUDA *****
 
 void help(){
 
-   printf("             COMANDO - FUNCION\n");
-   printf("    --kernel-version - Muestra la version del kernel actual.\n");
-   printf(" --running-processes - Numero de procesos ejecutandose en el sistema.\n");
-   printf("         --men-total - Total de memoria RAM.\n");
-   printf("    --mem-total-free - Total de memorio RAM libre.\n");
-   printf("          --men-swap - Total de memoria SWAP.\n");
-   printf("     --mem-swap-free - Total de memoria SWAP libre en el sistema.\n");
-   printf("         --disk-list - Lista de discos existentes en el sistema.\n");
-   printf("   --partitions-list - Lista las particiones existentes en todos las unidades del sistema.\n");
-   printf("          --net-list - Lista las interfaces de red.\n");
-   printf("       --net-list-ip - Lista las interfaces de red junto a su IP (si tiene asignada).\n");
-   printf("        --disk-space - Muestra el espacio usado en los discos montados.\n");
-   printf("      --current-user - Muestra el nombre de usuario con el cual fue ejecutado el progama.\n");
-   printf("         --date-time - Muestra la hora y fecha actual del sistema.\n");
-   printf("            --uptime - Muestra el tiempo que ha estado encendida la computadora.\n");
+    printf("             COMANDO - FUNCION\n\n");
+
+    printf("       **** SECCION DEL SISTEMA ****\n");
+    printf("    --kernel-version - Muestra la version del kernel actual.\n");
+    printf(" --running-processes - posero de procesos ejecutandose en el sistema.\n");
+    printf("      --current-user - Muestra el nombre de usuario con el cual fue ejecutado el progama.\n");
+    printf("         --date-time - Muestra la hora y fecha actual del sistema.\n");
+    printf("            --uptime - Muestra el tiempo que ha estado encendida la computadora.\n\n");
+
+    printf("       **** SECCION DE MEMORIA ****\n");
+    printf("         --men-total - Total de memoria RAM.\n");
+    printf("    --mem-total-free - Total de memorio RAM libre.\n");
+    printf("          --men-swap - Total de memoria SWAP.\n");
+    printf("     --mem-swap-free - Total de memoria SWAP libre en el sistema.\n\n");
+
+    printf("       **** SECCION DEL DISCO ****\n");
+    printf("         --disk-list - Lista de discos existentes en el sistema.\n");
+    printf("        --disk-space - Muestra el espacio usado en los discos montados.\n");
+    printf("   --partitions-list - Lista las particiones existentes en todos las unidades del sistema.\n\n");
+
+    printf("      **** SECCION DE LA RED ****\n");
+    printf("          --net-list - Lista las interfaces de red.\n");
+    printf("       --net-list-ip - Lista las interfaces de red junto a su IP (si tiene asignada).\n\n");
 
 }

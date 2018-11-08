@@ -40,7 +40,7 @@ int main(int argc, char **argv){
         }else if(strcmp(argv[1], "--current-user") == 0){
             current_user();
             
-        }else if(strcmp(argv[1], "--date-time:") == 0){
+        }else if(strcmp(argv[1], "--date-time") == 0){
             date_time();
             
         }else if(strcmp(argv[1], "--uptime") == 0){
