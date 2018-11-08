@@ -1,8 +1,16 @@
-#include "../libreria.h"
+#ifdef __unix__ 
+
+    #include "../Librerias/linux.h"
+
+#elif defined(_WIN32) || defined(WIN32)
+
+    #include "../Librerias/windows.h"
+
+#endif
 
 int main(int argc, char **argv){
 	
-    if(argc < 3){
+    if(argc < 3 && argc > 1){
 
         if(strcmp(argv[1], "--kernel-version") == 0){
         	kernel_version();            
@@ -55,7 +63,9 @@ int main(int argc, char **argv){
         
 
     }else{
-        printf("Cantidad de argumentos invalido.");
+
+        printf("Cantidad de argumentos invalido.\n");
+
     }
 
     return 0;
