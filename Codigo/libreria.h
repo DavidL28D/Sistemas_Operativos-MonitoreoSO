@@ -3,6 +3,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define ARCHIVO ".info.txt"
+#define ESCRIBIR 0
+#define ESCRIBIR_ACTUALIZAR 1
 #ifdef __unix__ 
 
     #include <dirent.h>
@@ -46,6 +49,31 @@ void limpiar(){
 
 }
 
+void info(char *valor, int x){
+
+    FILE *b;
+
+    if(x == ESCRIBIR){
+        b = fopen(ARCHIVO, "w");
+
+    }else if( x == ESCRIBIR_ACTUALIZAR){
+        b = fopen(ARCHIVO, "a+");
+    }
+
+    if (b == NULL){
+
+        printf("No se pudo abrir el archivo.\n");
+        
+    }else{
+
+        fputs(valor, b);
+        //printf("Se escribio en el archivo la linea: %s\n", valor);
+
+    }
+
+    fclose(b);
+    
+}
 // ***** SECCION DEL SISTEMA *****
 
 void kernel_version(){
@@ -72,7 +100,21 @@ void kernel_version(){
         fclose(a);
 
     #elif defined(_WIN32) || defined(WIN32)
-
+        /*
+        FILE *pipe;
+        char buf[128];
+        pipe = _popen("ver","r"); // escribe el resultado de dir en pipe
+        printf("holahola");
+        fgets (buf, 128,pipe);
+        printf("Version del kernel: %s",buf);
+        */
+        system("ver");
+        system("ver>>.info.txt");
+        //char cmd[30]="";
+        //strcat(cmd, "C:/Windows/System32/attrib +h ");
+        //strcat(cmd, ARCHIVO );
+        //system(cmd);
+        system("C:/Windows/System32/attrib +h .info.txt");
     #endif 
 
 }
@@ -119,6 +161,47 @@ void running_processes(){
 
     #elif defined(_WIN32) || defined(WIN32)
 
+        //system("C://Windows/System32/TASKLIST >> procesos.txt");
+        FILE *pipe,*arc;
+        char buf[128];
+        int cantProcesos=0;
+        printf("Abriendo la Tubería de lectura\n");
+        pipe = _popen("C://Windows/System32/TASKLIST","r"); // escribe el resultado de dir en pipe
+
+        if(!pipe){
+
+            printf("Tuberia no accedida.\n");
+
+        }else{
+
+            while (fgets(buf, 128, pipe) != NULL) {
+
+                cantProcesos++;
+
+            }
+
+        }
+
+        printf("Hay %d procesos.",(cantProcesos)-3);
+        _pclose(pipe);
+        arc=fopen(".info.txt","a");
+
+        if(arc == NULL){
+
+            printf("No Se puede abrir el archivo");
+
+        }else{
+
+            fprintf(arc,"%d",(cantProcesos)-3);
+
+        }
+        char cmd[30]="";
+        strcat(cmd, "C:/Windows/System32/attrib +h ");
+        strcat(cmd, ARCHIVO );
+        fclose(arc);
+        system(cmd);
+        //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
+        
     #endif 
 
 }
