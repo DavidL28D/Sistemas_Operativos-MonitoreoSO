@@ -17,6 +17,16 @@
 #elif defined(_WIN32) || defined(WIN32)
 
     // includes para windows
+     void ocultar_archivo(){
+        
+        #if defined(_WIN32) || defined(WIN32)
+        char cmd[30]="";
+        strcat(cmd, "C:/Windows/System32/attrib +h ");
+        strcat(cmd, ARCHIVO );
+        system(cmd);
+        #endif
+
+    }
 
 #endif
 
@@ -48,7 +58,7 @@ void limpiar(){
 
     #endif     
 
-}
+}   
 
 void info(char *valor, int x){
 
@@ -121,12 +131,13 @@ void kernel_version(){
         printf("Version del kernel: %s",buf);
         */
         system("ver");
+        remove(".info.txt");
         system("ver>>.info.txt");
         //char cmd[30]="";
         //strcat(cmd, "C:/Windows/System32/attrib +h ");
         //strcat(cmd, ARCHIVO );
         //system(cmd);
-        system("C:/Windows/System32/attrib +h .info.txt");
+        ocultar_archivo();
 
     #endif 
 
@@ -218,7 +229,8 @@ void running_processes(){
 
         printf("Hay %d procesos.",(cantProcesos)-3);
         _pclose(pipe);
-        arc=fopen(".info.txt","a");
+        remove(".info.txt");
+        arc=fopen(".info.txt","a+");
 
         if(arc == NULL){
 
@@ -226,14 +238,10 @@ void running_processes(){
 
         }else{
 
-            fprintf(arc,"%d",(cantProcesos)-3);
+            fprintf(arc,"%d\n",(cantProcesos)-3);
 
         }
-        char cmd[30]="";
-        strcat(cmd, "C:/Windows/System32/attrib +h ");
-        strcat(cmd, ARCHIVO );
-        fclose(arc);
-        system(cmd);
+        ocultar_archivo();
         //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
         
     #endif 
@@ -360,6 +368,53 @@ void mem_total(){
 
     #elif defined(_WIN32) || defined(WIN32)
 
+        //system("C://Windows/System32/wbem/wmic MemoryChip get capacity >> procesos.txt");
+        FILE *pipe,*arc;
+        char buf[128];
+        long int memoria=0;
+        printf("Abriendo la Tubería de lectura\n");
+        pipe = _popen("C://Windows/System32/wbem/wmic MemoryChip get capacity","r"); // escribe el resultado de dir en pipe
+
+        if(!pipe){
+
+            printf("Tuberia no accedida.\n");
+
+        }else{
+            printf("memoria: %d\n",memoria/1024);
+            fgets(buf, 128, pipe);
+            while (fgets(buf, 128, pipe) != NULL) {
+                printf("memoria: %s\n",buf);
+                if(isdigit(buf[1])){
+                    printf("memoria: %i\n",atoi(buf));
+                    memoria += atoi(buf);
+                }
+            } 
+            /*
+            fgets(buf, 128, pipe);
+            fgets(buf, 128, pipe);
+            */
+                
+            
+
+        }
+
+        printf("Hay %d Kb de memoria.",&memoria);
+        _pclose(pipe);
+        remove(".info.txt");
+        arc=fopen(".info.txt","a");
+
+        if(arc == NULL){
+
+            printf("No Se puede abrir el archivo");
+
+        }else{
+
+            fprintf(arc,"%d",&memoria);
+
+        }
+        ocultar_archivo();
+        //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
+        
     #endif 
 
 }
@@ -520,7 +575,8 @@ void disk_list(){
     #ifdef __unix__
 
     #elif defined(_WIN32) || defined(WIN32)
-
+    system("C://Windows/System32/diskpart -listdisk >> .info.txt");
+    ocultar_archivo();
     #endif 
 
 }
@@ -606,7 +662,7 @@ void help(){
 
     printf("       **** SECCION DEL SISTEMA ****\n");
     printf("    --kernel-version - Muestra la version del kernel actual.\n");
-    printf(" --running-processes - posero de procesos ejecutandose en el sistema.\n");
+    printf(" --running-processes - Numero de procesos ejecutandose en el sistema.\n");
     printf("      --current-user - Muestra el nombre de usuario con el cual fue ejecutado el progama.\n");
     printf("         --date-time - Muestra la hora y fecha actual del sistema.\n");
     printf("            --uptime - Muestra el tiempo que ha estado encendida la computadora.\n\n");
@@ -627,3 +683,4 @@ void help(){
     printf("       --net-list-ip - Lista las interfaces de red junto a su IP (si tiene asignada).\n\n");
 
 }
+
