@@ -1,164 +1,132 @@
 #include "global.h"
+#include "time.h"
 
 // ***** SECCION DEL SISTEMA *****
-void kernel_version(){
 
-    
+char *tuberia(char* path, int laps){
     FILE *pipe;
-    char buf[256];
-    char version[128]="",salto='\n';
-    pipe = _popen("C://Windows/System32/wbem/WMIC OS get Version","r"); // escribe el resultado de dir en pipe
+    char buf[128],*retorno=(char*)malloc(128);
+    int i;
+    pipe = _popen(path,"r"); 
+    if(!pipe){
+        printf("Tuberia no accedida.\n");
+    }else{
+        for(i=0;i<laps;i++){
+            fgets (buf, 128,pipe);
+        }
+    }
+    _pclose(pipe); 
+    strcpy(retorno,buf);
+    return retorno; 
+}
+
+char *kernel_version(){
+
+    char *version= (char*) malloc(128);
+    char command[128];
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get caption,Version");    
     int i=0;
-    //system("C://Windows/System32/wbem/WMIC OS get Version");
-    if(!pipe){
+    strcpy(version,tuberia(command,2));
+    printf("%s",version);          
+    return version;
+    
+}
 
-        printf("Tuberia no accedida.\n");
+int running_processes(){
 
-    }else{
-           
-        fgets (buf, 128,pipe);
-              
-        for(i=0; i <= strlen(buf) ;i++){
-            if(buf[i] == '\n'){
-                buf[i]='\t';
-            }
-        }
-
-        strcpy(version,buf);  
-        fgets (buf, 128,pipe);
-        strcat(version,buf);
-        printf("%s",version);    
-
-    }
-    _pclose(pipe);
-    //system("ver");
-    //system("ver>>.info.txt");
-    //char cmd[30]="";
-    //strcat(cmd, "C:/Windows/System32/attrib +h ");
-    //strcat(cmd, ARCHIVO );
-    //system(cmd);
-    //system("C:/Windows/System32/attrib +h .info.txt");
+    char procesos[128];
+    char command[128];
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get NumberOfProcesses");    
+    strcpy(procesos,tuberia(command,2));
+    printf("%s",procesos);  
+    return atoi(procesos);
 
 }
 
-void running_processes(){
-/*
-    //system("C://Windows/System32/TASKLIST >> procesos.txt");
-    FILE *pipe,*arc;
-    char buf[128];
-    int cantProcesos=0;
-    printf("Abriendo la Tubería de lectura\n");
-    pipe = _popen("C://Windows/System32/TASKLIST","r"); // escribe el resultado de dir en pipe
+char *current_user(){
 
-    if(!pipe){
-
-        printf("Tuberia no accedida.\n");
-
-    }else{
-
-        while (fgets(buf, 128, pipe) != NULL) {
-
-            cantProcesos++;
-
-        }
-
-    }
-
-    printf("Hay %d procesos.",(cantProcesos)-3);
-    _pclose(pipe);
-    arc=fopen(".info.txt","a");
-
-    if(arc == NULL){
-
-        printf("No Se puede abrir el archivo");
-
-    }else{
-
-        fprintf(arc,"%d",(cantProcesos)-3);
-
-    }
-    char cmd[30]="";
-    strcat(cmd, "C:/Windows/System32/attrib +h ");
-    strcat(cmd, ARCHIVO );
-    fclose(arc);
-    system(cmd);
-    //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
-    */
-      
-}
-
-void current_user(){
+    char* user = (char*)malloc(128);
+    char command[128];
+    strcpy(command,"C://Windows/System32/wbem/WMIC netlogin get fullname");    
+    strcpy(user,tuberia(command,3));
+    printf("%s",user);  
+    return user;   
 
 }
 
-void date_time(){
 
+char* date_time(){       
+    time_t t;
+    struct tm *tm;
+    char* fechayhora= (char*)malloc(100);
+    t=time(NULL);
+    tm=localtime(&t);
+    strftime(fechayhora, 100, "%d/%m/%Y %H:%M", tm);
+    printf ("%s\n", fechayhora);   
+    return fechayhora;   
 }
 
 void uptime(){
 
 }
 
-
 // ***** SECCION DE MEMORIA *****
-void mem_total(){
-    //system("C://Windows/System32/wbem/wmic MemoryChip get capacity >> procesos.txt");
-    /*FILE *pipe,*arc;
-    char buf[128];
-    long int memoria=0;
-    printf("Abriendo la Tubería de lectura\n");
-    pipe = _popen("C://Windows/System32/wbem/wmic MemoryChip get capacity","r"); // escribe el resultado de dir en pipe
-
-    if(!pipe){
-
-        printf("Tuberia no accedida.\n");
-
-    }else{
-        printf("memoria: %d\n",memoria/1024);
-        fgets(buf, 128, pipe);
-        while (fgets(buf, 128, pipe) != NULL) {
-            printf("memoria: %s\n",buf);
-            if(isdigit(buf[1])){
-                printf("memoria: %i\n",atoi(buf));
-                memoria += atoi(buf);
-            }
-        } 
-        /*
-        fgets(buf, 128, pipe);
-        fgets(buf, 128, pipe);
-        
-            
-        
-
+float mem_total(){
+    char memo[20],command[128];
+    float mem;        
+    int i;    
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get totalvisiblememorysize");    
+    mem=(float)atoll(tuberia(command,2));
+    for (i=0; i<2; ++i){
+        mem=mem/1024;
     }
+    printf("%.2fGB",mem);     
+    return mem;
+}
 
-    printf("Hay %d Kb de memoria.",&memoria);
-    _pclose(pipe);
-    remove(".info.txt");
-    arc=fopen(".info.txt","a");
-
-    if(arc == NULL){
-
-        printf("No Se puede abrir el archivo");
-
-    }else{
-
-        fprintf(arc,"%d",&memoria);
-
+float mem_total_free(){
+    char memo[20],command[128];
+    float mem;        
+    int i;    
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get freephysicalmemory");    
+    mem=(float)atoll(tuberia(command,2));
+    for (i=0; i<2; ++i){
+        mem=mem/1024;
     }
-    */
+    printf("%.2fGB",mem);     
+    return mem;
 }
 
-void mem_total_free(){
-
+float mem_swap(){
+    char memo[20],command[128];
+    float memvir,mem;        
+    int i;    
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get totalvirtualmemorysize");    
+    memvir=(float)atoll(tuberia(command,2));
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get totalvisiblememorysize");    
+    mem=(float)atoll(tuberia(command,2));
+    memvir= memvir - mem;
+    for (i=0; i<2; ++i){
+        memvir=memvir/1024;
+    }
+    printf("%.2fGB",memvir);     
+    return memvir;
 }
 
-void mem_swap(){
-
-}
-
-void mem_swap_free(){
-
+float mem_swap_free(){
+    char memo[20],command[128];
+    float memvir,mem;        
+    int i;    
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get freevirtualmemory");    
+    memvir=(float)atoll(tuberia(command,2));
+    strcpy(command,"C://Windows/System32/wbem/WMIC OS get freephysicalmemory");    
+    mem=(float)atoll(tuberia(command,2));
+    memvir= memvir - mem;
+    for (i=0; i<2; ++i){
+        memvir=memvir/1024;
+    }
+    printf("%.2fGB",memvir);     
+    return memvir;
 }
 
 // ***** SECCION DE DISCO *****
@@ -171,18 +139,14 @@ void disk_list(){
 }
 
 void disk_space(){
-
 }
 
 void partitions_list(){
-
 }
 
 // ***** SECCION DE REDES *****
 void net_list(){
-
 }
 
 void net_list_ip(){
-
 }
