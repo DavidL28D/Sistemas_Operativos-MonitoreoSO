@@ -3,10 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define ARCHIVO ".info.txt"
-#define ESCRIBIR 0
-#define ESCRIBIR_ACTUALIZAR 1
-
 #ifdef __unix__ 
 
     #include <dirent.h>
@@ -60,33 +56,8 @@ void limpiar(){
 
 }   
 
-void info(char *valor, int x){
-
-    FILE *b;
-
-    if(x == ESCRIBIR){
-        b = fopen(ARCHIVO, "w");
-
-    }else if( x == ESCRIBIR_ACTUALIZAR){
-        b = fopen(ARCHIVO, "a+");
-    }
-
-    if (b == NULL){
-
-        printf("No se pudo abrir el archivo.\n");
-        
-    }else{
-
-        fputs(valor, b);
-        //printf("Se escribio en el archivo la linea: %s\n", valor);
-
-    }
-
-    fclose(b);
-    
-}
-
 // ***** SECCION DEL SISTEMA *****
+
 void kernel_version(){
 
     #ifdef __unix__
@@ -100,9 +71,8 @@ void kernel_version(){
             while (!feof(a)){
                 
                 if(strstr(linea, "Linux version")){
-                    break;
+                    printf("%s", linea);
                 }
-
                 fgets(linea, sizeof(linea), a);
 
             }
@@ -111,17 +81,9 @@ void kernel_version(){
 
         fclose(a);
 
-        char *token;
-
-        token = strtok(linea, " ");
-        token = strtok(NULL, " ");
-        token = strtok(NULL, " ");
-
-        printf("%s\n", token);
-        info(token, ESCRIBIR);
-
     #elif defined(_WIN32) || defined(WIN32)
 
+<<<<<<< HEAD
         /*
         FILE *pipe;
         char buf[128];
@@ -139,6 +101,8 @@ void kernel_version(){
         //system(cmd);
         ocultar_archivo();
 
+=======
+>>>>>>> develop-y
     #endif 
 
 }
@@ -160,7 +124,6 @@ void running_processes(){
         }else{  
 
             while((ent = readdir (dir)) != NULL){
-
                 // Nos devolverá el directorio actual 
                 flag = true;
 
@@ -173,39 +136,20 @@ void running_processes(){
 
                 if(flag){
 
+                    //printf("%s\n", ent->d_name); //Imprime cada proceso encontrado
                     x++;
 
                 }
             }
 
+            printf("Actualmente existen %i procesos activos.", x);
             closedir (dir);
-
-            int auxB, auxA;
-
-            auxA = x;
-            auxB = 1;
-
-            while(true){
-
-                auxA/=10;
-
-                if(auxA > 0){
-                    auxB++;
-                }else{
-                    break;
-                }
-
-            }
-
-            char aux[auxB];
-            sprintf(aux, "%i", x);
-            printf("%s", aux);
-            info(aux, ESCRIBIR);
 
         }
 
     #elif defined(_WIN32) || defined(WIN32)
 
+<<<<<<< HEAD
         //system("C://Windows/System32/TASKLIST >> procesos.txt");
         FILE *pipe,*arc;
         char buf[128];
@@ -244,6 +188,8 @@ void running_processes(){
         ocultar_archivo();
         //system("C:/Windows/System32/attrib +h %S",ARCHIVO);
         
+=======
+>>>>>>> develop-y
     #endif 
 
 }
@@ -261,7 +207,7 @@ void current_user(){
 void date_time(){
 
     #ifdef __unix__
-        system("date >> .info.txt");
+        system("date");
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -287,6 +233,7 @@ void uptime(){
             while (!feof(a)){
 
                 pos = 0;
+                //printf("%s\n", linea); // imprime la linea extraida del archivo
 
                 for(int i=0; i<strlen(linea); i++){
 
@@ -302,6 +249,7 @@ void uptime(){
                     }
                 }
 
+                printf("Tiempo activo de la maquina expresado en segundos: %i\n", atoi(aux));
                 fgets(linea, sizeof(linea), a);
 
             }
@@ -309,9 +257,6 @@ void uptime(){
         }
 
         fclose(a);
-
-        printf("%s", aux);
-        info(aux, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -321,6 +266,7 @@ void uptime(){
 
 
 // ***** SECCION DE MEMORIA *****
+
 void mem_total(){
 
     #ifdef __unix__
@@ -351,6 +297,10 @@ void mem_total(){
                         }
                     }
 
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
                     break;
 
                 }
@@ -362,9 +312,6 @@ void mem_total(){
         }
 
         fclose(a);
-
-        printf("%s", aux);
-        info(aux, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -449,6 +396,10 @@ void mem_total_free(){
                         }
                     }
 
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
                     break;
                 }
 
@@ -459,8 +410,6 @@ void mem_total_free(){
         }
 
         fclose(a);
-        printf("%s", aux);
-        info(aux, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -498,6 +447,10 @@ void mem_swap(){
                         }
                     }
 
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
                     break;
 
                 }
@@ -509,8 +462,6 @@ void mem_swap(){
         }
 
         fclose(a);
-        printf("%s", aux);
-        info(aux, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -548,6 +499,10 @@ void mem_swap_free(){
                         }
                     }
 
+                    printf("Memoria expresada en Kb: %i\n", atoi(aux));
+                    float gb = atoi(aux) / 1048576;
+                    printf("Memoria expresada en Gb: %.2f", gb); 
+                       
                     break;
 
                 }
@@ -559,8 +514,6 @@ void mem_swap_free(){
         }
 
         fclose(a);
-        printf("%s", aux);
-        info(aux, ESCRIBIR);
 
     #elif defined(_WIN32) || defined(WIN32)
 
@@ -573,6 +526,8 @@ void mem_swap_free(){
 void disk_list(){
 
     #ifdef __unix__
+
+
 
     #elif defined(_WIN32) || defined(WIN32)
     system("C://Windows/System32/diskpart -listdisk >> .info.txt");
@@ -595,32 +550,19 @@ void partitions_list(){
 
     #ifdef __unix__
 
-        char *token;
-
         if ((a = fopen("/proc/partitions", "r")) == NULL){
         printf("No se puede abrir el archivo");
-
+            
         }else{
 
             for(int i=0; i<3; i++){
                 fgets(linea, sizeof(linea), a);
             }
             
-            token = strtok(linea, " ");
-            for(int i=0; i<3; i++){
-                token = strtok(NULL, " ");
-            }
-            
-            info(token, ESCRIBIR);
-
             while (!feof(a)){
                 
-                printf("%s", token);
+                printf("%s", linea);
                 fgets(linea, sizeof(linea), a);
-
-                if(!feof(a)){
-                    info(token, ESCRIBIR_ACTUALIZAR);
-                }
                 
             }
 
@@ -635,6 +577,7 @@ void partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
+
 void net_list(){
 
     #ifdef __unix__
@@ -656,6 +599,7 @@ void net_list_ip(){
 }
 
 // ***** SECCION DE AYUDA *****
+
 void help(){
 
     printf("             COMANDO - FUNCION\n\n");
