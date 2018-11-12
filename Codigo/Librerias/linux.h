@@ -1,4 +1,5 @@
 #include "global.h"
+
 #include <dirent.h>
 
     FILE *a;
@@ -98,9 +99,26 @@ void running_processes(){
 
 void current_user(){
 
+    char *user;
+
+    user = (char *)malloc(20);
+    strcpy(user, getenv("USER"));
+
+    printf("%s\n", user);
+
 }
 
 void date_time(){
+
+    char *tiempo = (char *)malloc(128);
+    time_t t;
+    struct tm *tm;
+
+    t = time(NULL);
+    tm = localtime(&t);
+    strftime(tiempo, 128, "%d/%m/%y %H:%M", tm);
+
+    printf("%s\n", tiempo); // VARIABLE(S) A RETORNAR PARA LA UI
 
 }
 
