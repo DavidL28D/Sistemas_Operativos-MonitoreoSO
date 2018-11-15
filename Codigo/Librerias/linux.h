@@ -276,7 +276,6 @@ void mem_swap_free(){
 }
 
 // ***** SECCION DE DISCO *****
-
 void disk_list(){ 
 
     int p, x, y;
@@ -326,6 +325,58 @@ void disk_list(){
 }
 
 void disk_space(){
+
+    int p, x, y;
+    char pipe[] = "/tmp/pipe"; 
+    char *string, *buffer = (char *)malloc(200);
+
+    mkfifo(pipe, 0666);
+
+    for(int i=0; i<2; i++){
+
+        system("(df -h | grep /dev/sd > /tmp/pipe) &");
+
+        p = open(pipe, O_RDONLY);
+
+        if(i == 0){
+
+            while((x = read(p, buffer, 200)) > 0){ y+=x; }
+
+        }else{
+
+            string = (char *) malloc(y);
+            read(p, string, y);
+
+        }
+        
+        close(p);
+
+    }
+
+    unlink(pipe);
+
+    token = strtok (string, " ");
+
+    while (token != NULL){
+
+        printf("%s: ", token);
+
+        if(strstr(token, "Disco") || strstr(token, "Disk")){
+
+            token = strtok (NULL, " :");
+            printf ("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+        }
+
+        for(int i=0; i<3; i++){
+            token = strtok (NULL, " ");
+        } 
+
+        printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+        token = strtok (NULL, "\n");
+        token = strtok (NULL, " ");
+
+    }
 
 }
 
