@@ -521,6 +521,36 @@ char** partitions_list(){
 
 // ***** SECCION DE REDES *****
 void net_list(){
+    int p, x, tam=0;
+    char pipe[] = "/tmp/pipe",*word; 
+    char *string, *buffer = (char *)malloc(200);
+
+    mkfifo(pipe, 0666);
+
+        system("( ip address ls | egrep ': ' | sed 's/^[0-9]: *//g' > /tmp/pipe) &");
+        p = open(pipe, O_RDONLY);
+        
+        for(int i = 0; i < 1; i++)
+            while((x = read(p, buffer, 200)) > 0) 
+                tam+=x; 
+
+        system("( ip address ls | egrep ': ' | sed 's/^[0-9]: *//g' > /tmp/pipe) &");
+        p = open(pipe, O_RDONLY);
+        string = (char *) malloc(tam-1);
+        read(p, string, tam-1);
+        close(p);
+
+        word = strtok (string, ":\n");
+
+        while (word != NULL){
+            if (word[0] != ' '){
+                printf("%s\n",word);
+                word = strtok (NULL, ":\n");
+            }
+            word = strtok (NULL, ":\n");
+        }
+
+    unlink(pipe);
 
 }
 
