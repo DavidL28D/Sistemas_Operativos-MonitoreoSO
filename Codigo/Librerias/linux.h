@@ -575,7 +575,7 @@ char** net_list(){
             aux = strtok (NULL, "-");
         }//for
     return interfaces;
-}
+}//net-list
 
 void net_list_ip(){
 
