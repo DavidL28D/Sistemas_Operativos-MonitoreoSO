@@ -520,10 +520,11 @@ char** partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
-void net_list(){
-    int p, x, tam=0;
-    char pipe[] = "/tmp/pipe",*word; 
-    char *string, *buffer = (char *)malloc(200);
+char** net_list(){
+    int p, x, tam=0, lenght=0;
+    char pipe[] = "/tmp/pipe", *word; 
+    char *string, *buffer = (char *)malloc(200),**interfaces;
+    char *aux, *cadena;
 
     mkfifo(pipe, 0666);
 
@@ -539,19 +540,41 @@ void net_list(){
         string = (char *) malloc(tam-1);
         read(p, string, tam-1);
         close(p);
-
+        unlink(pipe);
+        strcpy(aux,string);
         word = strtok (string, ":\n");
-
+        x = 0;
+        
         while (word != NULL){
             if (word[0] != ' '){
-                printf("%s\n",word);
+                x++;
+                lenght+= strlen(word);
                 word = strtok (NULL, ":\n");
-            }
+            }//if
             word = strtok (NULL, ":\n");
-        }
+        }//while
+        lenght+=3;
+        cadena = (char*)malloc(lenght+1);
+        word = strtok (aux, ":\n");
+        
+        while (word != NULL){
+            if (word[0] != ' '){
+                strcat(cadena,word);
+                strcat(cadena,"-");
+                word = strtok (NULL, ":\n");
+            }//if
+            word = strtok (NULL, ":\n");
+        }//while
 
-    unlink(pipe);
-
+        interfaces = (char**)malloc(x);
+        
+        aux = strtok(cadena,"-");
+        for(int i = 0; i < x; i++){
+            interfaces[i] = (char*)malloc(strlen(aux));
+            strcpy(interfaces[i],aux);
+            aux = strtok (NULL, "-");
+        }//for
+    return interfaces;
 }
 
 void net_list_ip(){
