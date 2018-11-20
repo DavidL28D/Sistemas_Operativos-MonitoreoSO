@@ -520,10 +520,11 @@ char** partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
-void net_list(){
-    int p, x, tam=0;
-    char pipe[] = "/tmp/pipe",*word; 
-    char *string, *buffer = (char *)malloc(200);
+char** net_list(){
+    int p, x, tam=0, lenght=0;
+    char pipe[] = "/tmp/pipe", *word; 
+    char *string, *buffer = (char *)malloc(200),**interfaces;
+    char *aux, *cadena;
 
     mkfifo(pipe, 0666);
 
@@ -539,21 +540,111 @@ void net_list(){
         string = (char *) malloc(tam-1);
         read(p, string, tam-1);
         close(p);
-
+        unlink(pipe);
+        strcpy(aux,string);
         word = strtok (string, ":\n");
-
+        x = 0;
+        
         while (word != NULL){
             if (word[0] != ' '){
-                printf("%s\n",word);
+                x++;
+                lenght+= strlen(word);
                 word = strtok (NULL, ":\n");
-            }
+            }//if
             word = strtok (NULL, ":\n");
-        }
+        }//while
+        lenght+=3;
+        cadena = (char*)malloc(lenght+1);
+        word = strtok (aux, ":\n");
+        
+        while (word != NULL){
+            if (word[0] != ' '){
+                strcat(cadena,word);
+                strcat(cadena,"-");
+                word = strtok (NULL, ":\n");
+            }//if
+            word = strtok (NULL, ":\n");
+        }//while
 
+        interfaces = (char**)malloc(x);
+        
+        aux = strtok(cadena,"-");
+        for(int i = 0; i < x; i++){
+            interfaces[i] = (char*)malloc(strlen(aux));
+            strcpy(interfaces[i],aux);
+            aux = strtok (NULL, "-");
+        }//for
+    return interfaces;
+}//net-list
+
+char** net_list_ip(){
+    int p, x, tam=0, cantidad_interfaces;
+    char pipe[] = "/tmp/pipe", *token; 
+    char *string, *buffer = (char *)malloc(200),*frase, *aux, **cadena;
+
+    mkfifo(pipe,0666);
+
+    system("( ip address ls | egrep ': |inet' | sed 's/^[0-9]: */interface|/g' | sed 's/^ *//g' | sed 's/inet /inet|/g'| sed 's/inet6 /inet6|/g' > /tmp/pipe) &");
+    p = open(pipe, O_RDONLY);
+
+    for(int i = 0; i < 1; i++)
+            while((x = read(p, buffer, 200)) > 0) 
+                tam+=x; 
+
+    system("( ip address ls | egrep ': |inet' | sed 's/^[0-9]: */interface|/g' | sed 's/^ *//g' | sed 's/inet /inet|/g'| sed 's/inet6 /inet6|/g' > /tmp/pipe) &");
+    p = open(pipe, O_RDONLY);
+    string = (char *) malloc(tam);
+    read(p, string, tam);
+    close(p);
     unlink(pipe);
 
-}
+    aux = (char*) malloc(tam);
+    frase = (char*) malloc(tam);
+    strcpy(aux,string);
+    strcpy(frase,string);
 
-void net_list_ip(){
-
-}
+    token = strtok(aux,"\n");
+    cantidad_interfaces = 0;
+    
+    while(token!=NULL){
+        strcpy(string,token);
+        if(strstr(string,"interface")){
+            cantidad_interfaces++;  
+        }//if interface   
+        token = strtok(NULL,"\n");
+    }//while
+    
+    cadena = (char**)malloc(cantidad_interfaces);
+    token = strtok(frase,"\n");
+    int j = 0;
+    while(token!=NULL){
+        strcpy(aux,token);
+        if(strstr(aux,"interface")){
+        cadena[j] = (char*)malloc(200);
+            for(int z = 0; z < strlen(aux); z++){                
+                if (aux[z+strlen("interface|")]!=':') 
+                    cadena[j][z]=aux[z+strlen("interface|")];
+                else
+                    z = strlen(aux);                
+            }//for interface            
+            for(int k=0; k<2; k++) cadena[j][strlen(cadena[j])]=' ';
+            j++;
+            token = strtok(NULL,"\n");
+        }//if interface
+        if(strstr(token,"inet") || strstr(token,"inet6")){
+            int inicio = strlen(cadena[j-1]);
+            for(int z = inicio; z < (inicio)+strlen(token); z++){                
+                if (strstr(token,"inet|") && token[(z+strlen("inet|"))-inicio]!=' '){
+                        cadena[j-1][z] = token[(z+strlen("inet|"))-inicio];
+                }else if (strstr(token,"inet6|") && token[(z+strlen("inet6|"))-(inicio)]!=' '){
+                        cadena[j-1][z] = token[(z+strlen("inet6|"))-(inicio)];
+                }else if(token[(z+strlen("inet|"))-inicio]!=' ' || token[(z+strlen("inet6|"))-inicio]!=' '){
+                    z = (inicio)+strlen(token)+1; 
+                    if(strstr(token,"inet|")) for(int k=0; k<2; k++) cadena[j-1][strlen(cadena[j-1])]=' ';
+                }
+            }//for ip           
+            token = strtok(NULL,"\n");
+        }//if inet
+    }//while
+    return cadena;
+}//net_list_ip
