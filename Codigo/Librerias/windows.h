@@ -2,6 +2,15 @@
 #include "time.h"
 
 // ***** SECCION DEL SISTEMA *****
+int delete_trash(char* path){
+    if(strcmp(path,"C://Windows/System32/netsh interface show interface")==0){
+        return 1;//metodo netlist
+    }
+    if(strcmp(path,"C://Windows/System32/wbem/WMIC computersystem get username")==0){
+        return 2;
+    }
+
+}
 
 char** tuberia(char* path, int *laps){
     FILE *pipe;
@@ -14,9 +23,15 @@ char** tuberia(char* path, int *laps){
         printf("Tuberia no accedida.\n");
     }else{
         fgets (buf, 128,pipe);
+        if(delete_trash(path)==1){//Elimina la cadena basura que no se necesita de la cadena del comando netsh
+            for(int k =0 ; k<2; k++){
+                fgets (buf, 128,pipe);
+            }
+            
+        }
         while(fgets (buf, 128,pipe)){
             if(buf[0]!=' '){
-                if(strcmp(path,"C://Windows/System32/wbem/WMIC computersystem get username")==0){
+                if(delete_trash(path)==2){
                         if(strstr(buf, "\\")){
                             posicion = strlen(buf) - strlen(strstr(buf, "\\"));
                         for(i=posicion+1; i<strlen(buf); i++){
@@ -37,6 +52,7 @@ char** tuberia(char* path, int *laps){
     _pclose(pipe);     
     return retorno; 
 }
+
 
 char* kernel_version(){
 
@@ -93,7 +109,6 @@ char* date_time(){
     printf ("%s\n", fechayhora);   
     return fechayhora;   
 }
-
 
 void uptime(){
     /*
@@ -238,7 +253,21 @@ char** partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
-void net_list(){
+char** net_list(){
+    char **netlist;
+    char command[128];
+    strcpy(command,"C://Windows/System32/netsh interface show interface"); 
+    int i=0,size,aux; 
+    tuberia(command,&size);
+    netlist=(char**)malloc(size);
+    for(i=0; i<size;i++){
+        netlist[i]=(char*)malloc(128);
+    }
+    netlist=tuberia(command,&aux);
+    for(i=0; i<size;i++){
+        printf(netlist[i]);
+    }
+    return netlist;
 }
 
 void net_list_ip(){
