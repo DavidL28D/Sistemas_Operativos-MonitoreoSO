@@ -11,7 +11,9 @@
     char *token;
 
 // ***** SECCION DEL SISTEMA *****
-void kernel_version(){
+char* kernel_version(){
+
+    char *retorno;
 
     if ((a = fopen("/proc/version", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -40,9 +42,14 @@ void kernel_version(){
 
     fclose(a);
 
+    retorno = (char *) malloc(strlen(linea));
+    strcpy(retorno, linea);
+    //return retorno;
+    return linea;
+
 }
 
-void running_processes(){
+int running_processes(){
 
     DIR *dir;
     struct dirent *ent;
@@ -96,12 +103,14 @@ void running_processes(){
         sprintf(aux, "%i", x);
 
         printf("%s\n", aux); // VARIABLE(S) A RETORNAR PARA LA UI
+        return atoi(aux);
 
     }
 
+    return 0;
 }
 
-void current_user(){
+char* current_user(){
 
     char *user;
 
@@ -110,10 +119,12 @@ void current_user(){
 
     printf("%s\n", user);
 
+    return user;
 }
 
-void date_time(){
+char* date_time(){
 
+    char *retorno;
     char *tiempo = (char *)malloc(128);
     time_t t;
     struct tm *tm;
@@ -124,9 +135,11 @@ void date_time(){
 
     printf("%s\n", tiempo); // VARIABLE(S) A RETORNAR PARA LA UI
 
+    return tiempo;
+
 }
 
-void uptime(){
+char* uptime(){
 
     if ((a = fopen("/proc/uptime", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -149,10 +162,14 @@ void uptime(){
 
     fclose(a);
 
+    return token;
+
 }
 
 // ***** SECCION DE MEMORIA *****
-void mem_total(){
+float mem_total(){
+
+    float memoria;
 
     if ((a = fopen("/proc/meminfo", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -167,7 +184,10 @@ void mem_total(){
                 token = strtok(linea, " ");
                 token = strtok(NULL, " ");
                 
-                printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+                //printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+                memoria = (float) atol(token);
+                memoria /= 1048576;
 
                 break;
 
@@ -180,10 +200,15 @@ void mem_total(){
     }
 
     fclose(a);
+    
+    printf("%.2f GB\n", memoria);
+    return memoria;
 
 }
 
-void mem_total_free(){
+float mem_total_free(){
+
+    float memoria;
 
     if ((a = fopen("/proc/meminfo", "r")) == NULL){
         printf("No se puede abrir el archivo");
@@ -198,7 +223,10 @@ void mem_total_free(){
                 token = strtok(linea, " ");
                 token = strtok(NULL, " ");
                 
-                printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+                //printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+                memoria = (float) atol(token);
+                memoria /= 1048576;
 
                 break;
             }
@@ -211,9 +239,14 @@ void mem_total_free(){
 
     fclose(a);
 
+    printf("%.2f GB\n", memoria);
+    return memoria;
+
 }
 
-void mem_swap(){
+float mem_swap(){
+    
+    float memoria;
 
     if ((a = fopen("/proc/meminfo", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -228,7 +261,10 @@ void mem_swap(){
                 token = strtok(linea, " ");
                 token = strtok(NULL, " ");
                 
-                printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+                //printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+                memoria = (float) atol(token);
+                memoria /= 1048576;
 
                 break;
 
@@ -242,9 +278,14 @@ void mem_swap(){
 
     fclose(a);
 
+    printf("%.2f GB\n", memoria);
+    return memoria;
+
 }
 
-void mem_swap_free(){
+float mem_swap_free(){
+
+    float memoria;
 
     if ((a = fopen("/proc/meminfo", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -259,7 +300,10 @@ void mem_swap_free(){
                 token = strtok(linea, " ");
                 token = strtok(NULL, " ");
                 
-                printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+                //printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+                memoria = (float) atol(token);
+                memoria /= 1048576;
 
                 break;
 
@@ -273,15 +317,18 @@ void mem_swap_free(){
 
     fclose(a);
 
+    printf("%.2f GB\n", memoria);
+    return memoria;
+
 }
 
 // ***** SECCION DE DISCO *****
-
-void disk_list(){ 
+char** disk_list(){ 
 
     int p, x, y;
     char pipe[] = "/tmp/pipe"; 
-    char *string, *buffer = (char *)malloc(200);
+    char *string, *buffer = (char *)malloc(200), *aux;
+    char **disks;
 
     mkfifo(pipe, 0666);
 
@@ -298,6 +345,75 @@ void disk_list(){
         }else{
 
             string = (char *) malloc(y);
+            aux = (char *) malloc(y);
+            read(p, string, y);
+
+        }
+        
+        close(p);
+
+    }
+
+    unlink(pipe);
+    x=0;
+
+    token = strtok (string, " :");
+
+    while (token != NULL){
+
+        if(strstr(token, "Disco") || strstr(token, "Disk")){
+
+            token = strtok (NULL, " :");
+            //printf ("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+            strcat(aux, token);
+            strcat(aux, "-");
+            x++;
+
+        }
+
+        token = strtok (NULL, " :");
+
+    }
+
+    token = strtok (aux, "-");
+    disks = (char **) malloc(x);
+
+    for(int i=0; i<x; i++){
+        disks[i] = (char *) malloc(strlen(token));
+        strcpy(disks[i], token);
+        token = strtok(NULL, "-");
+
+        printf("%s\n", disks[i]);
+    }
+
+    return disks;
+
+}
+
+char** disk_space(){
+
+    int p, x, y;
+    char pipe[] = "/tmp/pipe"; 
+    char *string, *aux, *buffer = (char *)malloc(200);
+    char** disks;
+
+    mkfifo(pipe, 0666);
+
+    for(int i=0; i<2; i++){
+
+        system("(df -h | grep /dev/sd > /tmp/pipe) &");
+
+        p = open(pipe, O_RDONLY);
+
+        if(i == 0){
+
+            while((x = read(p, buffer, 200)) > 0){ y+=x; }
+
+        }else{
+
+            string = (char *) malloc(y);
+            aux = (char *) malloc(y);
             read(p, string, y);
 
         }
@@ -308,28 +424,57 @@ void disk_list(){
 
     unlink(pipe);
 
-    token = strtok (string, " :");
+    token = strtok (string, " ");
 
+    x=0;
     while (token != NULL){
+
+        // printf("%s: ", token);
+        strcat(aux, token);
+        strcat(aux, ": ");
 
         if(strstr(token, "Disco") || strstr(token, "Disk")){
 
             token = strtok (NULL, " :");
-            printf ("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+            // printf ("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
 
         }
 
-        token = strtok (NULL, " :");
+        for(int i=0; i<3; i++){
+            token = strtok (NULL, " ");
+        } 
+
+        // printf("%s\n", token); // VARIABLE(S) A RETORNAR PARA LA UI
+
+        strcat(aux, token);
+        strcat(aux, "-");
+
+        token = strtok (NULL, "\n");
+        token = strtok (NULL, " ");
+        x++;
 
     }
 
+    token = strtok (aux, "-");
+    disks = (char **) malloc(x);
+
+    for(int i=0; i<x; i++){
+        disks[i] = (char *) malloc(strlen(token));
+        strcpy(disks[i], token);
+        token = strtok(NULL, "-");
+
+        printf("%s\n", disks[i]);
+    }
+
+    return disks;
+
 }
 
-void disk_space(){
+char** partitions_list(){
 
-}
-
-void partitions_list(){
+    char *aux = (char *)malloc(512);
+    char **partitions;
+    int x=0;
 
     if ((a = fopen("/proc/partitions", "r")) == NULL){
     printf("No se puede abrir el archivo");
@@ -348,8 +493,9 @@ void partitions_list(){
         
         while (!feof(a)){
             
-            printf("%s", token); // VARIABLE(S) A RETORNAR PARA LA UI
-            
+            //printf("%s", token); // VARIABLE(S) A RETORNAR PARA LA UI
+            strcat(aux, token);
+            x++;
             fgets(linea, sizeof(linea), a);
 
         }
@@ -358,10 +504,53 @@ void partitions_list(){
 
     fclose(a);
 
+    token = strtok (aux, "\n");
+    partitions = (char **) malloc(x);
+
+    for(int i=0; i<x; i++){
+        partitions[i] = (char *) malloc(strlen(token));
+        strcpy(partitions[i], token);
+        token = strtok(NULL, "\n");
+
+        printf("%s\n", partitions[i]);
+    }
+
+    return partitions;
+
 }
 
 // ***** SECCION DE REDES *****
 void net_list(){
+    int p, x, tam=0;
+    char pipe[] = "/tmp/pipe",*word; 
+    char *string, *buffer = (char *)malloc(200);
+
+    mkfifo(pipe, 0666);
+
+        system("( ip address ls | egrep ': ' | sed 's/^[0-9]: *//g' > /tmp/pipe) &");
+        p = open(pipe, O_RDONLY);
+        
+        for(int i = 0; i < 1; i++)
+            while((x = read(p, buffer, 200)) > 0) 
+                tam+=x; 
+
+        system("( ip address ls | egrep ': ' | sed 's/^[0-9]: *//g' > /tmp/pipe) &");
+        p = open(pipe, O_RDONLY);
+        string = (char *) malloc(tam-1);
+        read(p, string, tam-1);
+        close(p);
+
+        word = strtok (string, ":\n");
+
+        while (word != NULL){
+            if (word[0] != ' '){
+                printf("%s\n",word);
+                word = strtok (NULL, ":\n");
+            }
+            word = strtok (NULL, ":\n");
+        }
+
+    unlink(pipe);
 
 }
 
