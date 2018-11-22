@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>unet.png</file>
+    </qresource>
+</RCC>
