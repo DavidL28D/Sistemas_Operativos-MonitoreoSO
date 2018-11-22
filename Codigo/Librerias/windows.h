@@ -1,6 +1,5 @@
 #include "global.h"
 #include "time.h"
-
 // ***** SECCION DEL SISTEMA *****
 int delete_trash(char* path){
     if(strcmp(path,"C://Windows/System32/netsh interface show interface")==0){
@@ -8,6 +7,9 @@ int delete_trash(char* path){
     }
     if(strcmp(path,"C://Windows/System32/wbem/WMIC computersystem get username")==0){
         return 2;
+    }
+    if(strcmp(path,"C://Windows/System32/netsh interface ipv4 show ipaddresses")==0){
+        return 3;
     }
     return 0;
 }
@@ -55,6 +57,8 @@ char** tuberia(char* path, int *laps){
     }
     if(delete_trash(path)==1){
         *laps=i;
+    }else if(delete_trash(path)==3){
+        *laps=i+1;
     }else{
         *laps=i-1;
     }
@@ -218,8 +222,11 @@ void uptime(){
         inicio[i]=(char*)malloc(128);   
         strcpy(inicio[i],tuberia(command,&aux)[i]);
     }    
+    printf(inicio[0]);    
+    printf(horaactual);    
     calculate_uptime(inicio[0],horaactual);
-    
+    //en este punto debo trabajar con las dos cadenas de fecha para convertirlas en el uptime
+
 }
 
 
@@ -379,38 +386,36 @@ char** net_list(){
     return netlist;
 }
 
+
 char** net_list_ip(){
-    char **netlist, **consulta, **ipv6, *token, *linea, argumentos[5][100], name[100];
+    char **netlist, **consulta, **ipv6, *token, linea[100], argumentos[5][100], name[100];
     char command[128];
     strcpy(command,"C://Windows/System32/netsh interface ipv4 show ipaddresses");
     int i=0,size,cantidad_interfaces=0,interfaz = 0;
     consulta = tuberia(command,&size);
-
-    /*while(consulta[i]){
+    
+    for(int z = 0; z < size; z++){
         if(strstr(consulta[i],"Interfaz")){
             cantidad_interfaces++;
         }//if
         i++;
-    }//while
+    }
     netlist = (char**)malloc(cantidad_interfaces);
-    i=0;
-    while(consulta[i]){
-        if(strstr(consulta[i],"Interfaz")){
-            strcpy(name,consulta[i]);
-            linea = (char*)malloc(strlen(consulta[i+4]));
-            strcpy(linea,consulta[i+4]);
-            token = strtok(linea," ");
+    
+   for(int z = 0; z < size; z++){
+        if(strstr(consulta[z],"Interfaz")){
+            strcpy(name,consulta[z]);
+            token = strtok(name,":\n");
+            token = strtok(NULL,":\n");
+            strcpy(name,token);
+            strcpy(linea,consulta[z+3]);
+             token = strtok(linea," ");
             int x = 0;
             while(token != NULL){
                 strcpy(argumentos[x],token);
                 token = strtok(NULL," ");
                 x++;
             }//while
-
-            token = strtok(name,":\n");
-            token = strtok(NULL,":\n");
-            strcpy(name,token);
-
             if(strstr(argumentos[1],"Preferido")){
                 strcat(name,"  ");
                 strcat(name,argumentos[4]);
@@ -423,7 +428,6 @@ char** net_list_ip(){
             printf("%s\n",netlist[interfaz]);
             interfaz++;
         }//if
-        i++;
-    }//while*/
+    }//for
     return netlist;
 }//net_list_ip
