@@ -581,7 +581,7 @@ char** net_list(){
         printf("%s\n",cadena[i]);
     }
     return cadena;
-}//net-list
+}
 
 char** net_list_ip(){
     int p, x, tam=0, cantidad_interfaces;
@@ -657,4 +657,4 @@ char** net_list_ip(){
         printf("%s\n",cadena[i]);
     }
     return cadena;
-}//net_list_ip
+}

@@ -53,7 +53,6 @@ char** tuberia(char* path, int *laps){
     return retorno;
 }
 
-
 char* kernel_version(){
 
     char **version= (char**) malloc(2);
@@ -179,7 +178,6 @@ float mem_swap_free(){
 }
 
 // ***** SECCION DE DISCO *****
-
 char** disk_list(){
     char **disks;
     char command[128];
@@ -233,7 +231,6 @@ float* disk_space(){
     }
     return spacevalue;
 }
-
 
 char** partitions_list(){
     char **partitions;
