@@ -152,7 +152,7 @@ void calculate_uptime(char* inicio, char* actual){
     j=0;
     tokenF = strtok(actual,"/ :");
     while(tokenF != NULL){
-        printf("%s\n",tokenF);
+        //printf("%s\n",tokenF);
         
         if(j==0){
             diaA=atoi(tokenF);
@@ -184,9 +184,17 @@ void calculate_uptime(char* inicio, char* actual){
         printf(" %d Dias",diaA-diaI);
     }    
     if(horaA-horaI < 0){
-        printf(" %d Horas",horaA-horaI+60);
+        if(minutosA-minutosI < 0){
+        printf(" %d Horas",horaA-horaI+23);
+        }else{
+            printf(" %d Horas",horaA-horaI+24);
+        }
     }else{
-        printf(" %d Horas",horaA-horaI);
+        if(minutosA-minutosI < 0){
+        	printf(" %d Horas",horaA-horaI-1);
+        }else{
+            printf(" %d Horas",horaA-horaI);
+        }
     }   
     if(minutosA-minutosI < 0){
         printf(" %d Minutos",minutosA-minutosI+60);
@@ -209,15 +217,9 @@ void uptime(){
     for (i = 0; i < size; ++i){
         inicio[i]=(char*)malloc(128);   
         strcpy(inicio[i],tuberia(command,&aux)[i]);
-    }   
-    
-    
-    
-    printf(inicio[0]);    
-    printf(horaactual);    
+    }    
     calculate_uptime(inicio[0],horaactual);
-    //en este punto debo trabajar con las dos cadenas de fecha para convertirlas en el uptime
-
+    
 }
 
 
@@ -370,7 +372,7 @@ char** net_list(){
         netlist[i]=(char*)malloc(128);
         strcpy(netlist[i],tuberia(command,&aux)[i]);        
     }
-    
+    printf("\n");
     for(i=0; i<size;i++){
         printf(netlist[i]);
     }
@@ -384,7 +386,7 @@ char** net_list_ip(){
     int i=0,size,cantidad_interfaces=0,interfaz = 0;
     consulta = tuberia(command,&size);
 
-    while(consulta[i]){
+    /*while(consulta[i]){
         if(strstr(consulta[i],"Interfaz")){
             cantidad_interfaces++;
         }//if
@@ -422,6 +424,6 @@ char** net_list_ip(){
             interfaz++;
         }//if
         i++;
-    }//while
+    }//while*/
     return netlist;
 }//net_list_ip
