@@ -520,7 +520,73 @@ char** partitions_list(){
 }
 
 // ***** SECCION DE REDES *****
-void net_list(){
+char** net_list(){
+    int p, x, tam=0, cantidad_interfaces;
+    char pipe[] = "/tmp/pipe", *token; 
+    char *string, *buffer = (char *)malloc(200),**frase, *aux, **cadena;
+
+    mkfifo(pipe,0666);
+
+    system("( ifconfig | egrep ': |inet' | sed 's/^ *//g' | sed 's/inet /inet|/g'| sed 's/inet6 /inet6|/g' > /tmp/pipe) &");
+    p = open(pipe, O_RDONLY);
+
+    for(int i = 0; i < 1; i++)
+            while((x = read(p, buffer, 200)) > 0) 
+                tam+=x; 
+
+    system("( ifconfig | egrep ': |inet' | sed 's/^ *//g' | sed 's/inet /inet|/g'| sed 's/inet6 /inet6|/g' > /tmp/pipe) &");
+    p = open(pipe, O_RDONLY);
+    string = (char *) malloc(tam);
+    read(p, string, tam);
+    
+    close(p);
+    unlink(pipe);
+
+    aux = (char*) malloc(tam);
+    frase = (char**) malloc(tam);
+    strcpy(aux,string);
+
+    token = strtok(aux,"\n");
+    cantidad_interfaces = 0;
+    
+    x=0;
+    while(token!=NULL){
+        strcpy(string,token);
+        frase[x] = (char*)malloc(strlen(string));
+        strcpy(frase[x],string);
+        if(!strstr(string,"inet")){
+            cantidad_interfaces++;  
+        }//if interface   
+        token = strtok(NULL,"\n");
+        x++;
+    }//while
+    cadena = (char**)malloc(cantidad_interfaces);
+
+    int j = 0;
+    for(int i = 0; i < x; i++){        
+        if (!strstr(frase[i],"inet")){
+            cadena[j] = (char*)malloc(200);
+            for(int z = 0; z < strlen(frase[i]); z++){                
+                if (frase[i][z]!=':') 
+                    cadena[j][z]=frase[i][z];
+                else
+                    z = strlen(frase[i]);                
+            }//for interface            
+            j++;
+        }//if
+        
+    }
+    
+    for(int i = 0; i < j; i++){
+        printf("%s\n",cadena[i]);
+    }
+    return cadena;
+}//net-list
+
+char** net_list_ip(){
+    int p, x, tam=0, cantidad_interfaces;
+    char pipe[] = "/tmp/pipe", *token; 
+    char *string, *buffer = (char *)malloc(200),**frase, *aux, **cadena;
 
     mkfifo(pipe,0666);
 
@@ -591,4 +657,4 @@ void net_list(){
         printf("%s\n",cadena[i]);
     }
     return cadena;
-}
+}//net_list_ip
