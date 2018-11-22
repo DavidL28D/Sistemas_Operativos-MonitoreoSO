@@ -1,4 +1,9 @@
-#ifdef __unix__ 
+/*
+INTEGRANTES:
+CHACON GARCIA DAVID LEONARDO 25.023.230
+FUENTES CHACON YEISON BLADIMIR 23.498.281
+
+*/#ifdef __unix__ 
 
     #include "../Librerias/linux.h"
 

@@ -9,7 +9,7 @@ int delete_trash(char* path){
     if(strcmp(path,"C://Windows/System32/wbem/WMIC computersystem get username")==0){
         return 2;
     }
-
+    return 0;
 }
 
 char** tuberia(char* path, int *laps){
@@ -42,13 +42,24 @@ char** tuberia(char* path, int *laps){
                         return username;
                     }
                 }
-                retorno[i]=(char*)malloc(128);
-                strcpy(retorno[i],buf);
-                i++;
+                if(buf[0]!='\n'){
+                    retorno[i]=(char*)malloc(128);
+                    strcpy(retorno[i],buf);
+                    //printf("\"%s\"",retorno[i]);
+
+                    i++;
+                    //printf("i=%d",i);
+                }
+                
             }
         }
     }
-    *laps=i-1;
+    if(delete_trash(path)==1){
+        *laps=i;
+    }else{
+        *laps=i-1;
+    }
+    
     _pclose(pipe);
     return retorno;
 }
@@ -111,11 +122,27 @@ char* date_time(){
 }
 
 void uptime(){
-    /*
-    char *horaactual=(char*)malloc(100);;
-    strcpy(horaactual,obtener_hora());
-    printf(horaactual);
-    */
+    char **inicio;
+    char *horaactual=(char*)malloc(100);
+    char command[128];
+    int i=0,size,aux;
+    strcpy(horaactual,obtener_hora());    
+    
+    strcpy(command,"C://Windows/System32/wbem/WMIC os get lastBootUpTime");
+    
+    tuberia(command,&size);
+    inicio=(char**)malloc(size);
+    for (i = 0; i < size; ++i){
+        inicio[i]=(char*)malloc(128);   
+    }   
+    
+    inicio=tuberia(command,&aux);
+    
+    printf(inicio[0]);    
+    printf(horaactual);    
+
+    //en este punto debo trabajar con las dos cadenas de fecha para convertirlas en el uptime
+
 }
 
 // ***** SECCION DE MEMORIA *****
@@ -187,10 +214,13 @@ char** disk_list(){
     int i=0,size,aux;
     tuberia(command,&size);
     disks=(char**)malloc(size);
+    printf("cantidad %d\n",size);
     for(i=0; i<size;i++){
         disks[i]=(char*)malloc(128);
+        strcpy(disks[i],tuberia(command,&aux)[i]);
     }
-    disks=tuberia(command,&aux);
+
+    
     for(i=0; i<size;i++){
         printf(disks[i]);
     }
@@ -212,12 +242,13 @@ float* disk_space(){
     for(i=0; i<size;i++){
         disks[i]=(char*)malloc(128);
         space[i]=(char*)malloc(128);
+        strcpy(disks[i],tuberia(command,&aux)[i]);
     }
-    disks=tuberia(command,&aux);
+    
     strcpy(command,"C://Windows/System32/wbem/WMIC logicaldisk get freespace");
-    space=tuberia(command,&aux);
+    
     for(i=0; i<size;i++){
-        printf("sp: %s",disks[i]);
+        strcpy(space[i],tuberia(command,&aux)[i]);
     }
 
     for(i=0; i<size;i++){
@@ -229,11 +260,10 @@ float* disk_space(){
         for(int j= 0; j<3;j++){
             spacevalue[i]=spacevalue[i]/1024;
         }
-        printf("espacio usado: %2f\n",spacevalue[i]);
+        printf("Espacio Usado: %.2fGB\n",spacevalue[i]);
     }
     return spacevalue;
 }
-
 
 char** partitions_list(){
     char **partitions;
@@ -244,8 +274,9 @@ char** partitions_list(){
     partitions=(char**)malloc(size);
     for(i=0; i<size;i++){
         partitions[i]=(char*)malloc(128);
+        strcpy(partitions[i],tuberia(command,&aux)[i]);
     }
-    partitions=tuberia(command,&aux);
+    
     for(i=0; i<size;i++){
         printf(partitions[i]);
     }
@@ -260,10 +291,12 @@ char** net_list(){
     int i=0,size,aux;
     tuberia(command,&size);
     netlist=(char**)malloc(size);
+    //printf("cantidad: %d",size);
     for(i=0; i<size;i++){
         netlist[i]=(char*)malloc(128);
+        strcpy(netlist[i],tuberia(command,&aux)[i]);        
     }
-    netlist=tuberia(command,&aux);
+    
     for(i=0; i<size;i++){
         printf(netlist[i]);
     }
@@ -310,6 +343,7 @@ char** net_list_ip(){
             }
             netlist[interfaz] = (char*)malloc(100);
             strcpy(netlist[interfaz],name);
+            printf("%s\n",netlist[interfaz]);
             interfaz++;
         }//if
         i++;
