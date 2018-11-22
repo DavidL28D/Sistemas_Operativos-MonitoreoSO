@@ -2,8 +2,8 @@
 INTEGRANTES:
 CHACON GARCIA DAVID LEONARDO 25.023.230
 FUENTES CHACON YEISON BLADIMIR 23.498.281
-
-*/#ifdef __unix__ 
+*/
+#ifdef __unix__ 
 
     #include "../Librerias/linux.h"
 
@@ -51,7 +51,7 @@ int main(int argc, char **argv){
             disk_space();
             
         }else if(strcmp(argv[1], "--current-user") == 0){
-            current_user();
+            current_user();	
             
         }else if(strcmp(argv[1], "--date-time") == 0){
             date_time();

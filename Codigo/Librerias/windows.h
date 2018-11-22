@@ -12,7 +12,7 @@ int delete_trash(char* path){
     return 0;
 }
 
-char** tuberia(char* path, int *laps){
+char** tuberia(char* path, int *laps){        
     FILE *pipe;
     char buf[128],**retorno=(char**)malloc(50),**username=(char**)malloc(1);
     username[0]=(char*)malloc(128);
@@ -45,8 +45,7 @@ char** tuberia(char* path, int *laps){
                 if(buf[0]!='\n'){
                     retorno[i]=(char*)malloc(128);
                     strcpy(retorno[i],buf);
-                    //printf("\"%s\"",retorno[i]);
-
+                    
                     i++;
                     //printf("i=%d",i);
                 }
@@ -121,29 +120,107 @@ char* date_time(){
     return fechayhora;
 }
 
+void calculate_uptime(char* inicio, char* actual){
+    int annioI,annioA,mesI,mesA,diaI,diaA,horaI,horaA,minutosI,minutosA,j=0;
+    char *tokenI,*tokenF,annio[4],mes[2],dia[2],hora[2],minutos[2];
+    
+    for (int i = 0; i < 4; ++i){
+        annio[i]=inicio[i];
+    }
+    j=0;
+    for (int i = 4; i < 6; ++i)    {
+        mes[j]=inicio[i];
+        j++;
+    }
+    j=0;
+    for (int i = 6; i < 8; ++i)    {
+        dia[j]=inicio[i];
+        j++;
+    }j=0;
+    for (int i = 8; i < 10; ++i)    {
+        hora[j]=inicio[i];
+        j++;
+    }j=0;
+    for (int i = 10; i < 12; ++i)    {
+        minutos[j]=inicio[i];
+        j++;
+    }
+    annioI=atoi(annio);
+    mesI=atoi(mes);
+    diaI=atoi(dia);
+    horaI=atoi(hora);
+    minutosI=atoi(minutos);
+    j=0;
+    tokenF = strtok(actual,"/ :");
+    while(tokenF != NULL){
+        printf("%s\n",tokenF);
+        
+        if(j==0){
+            diaA=atoi(tokenF);
+            //printf("dia%d\n",diaA);
+            j++;
+        }else if (j==1){
+            mesA=atoi(tokenF);
+            j++;
+        }else if(j==2){
+            annioA=atoi(tokenF);
+            j++;
+        }else if(j==3){
+            horaA=atoi(tokenF);
+            j++;
+        }else if(j==4){
+            minutosA=atoi(tokenF);
+            j++;
+        }
+        tokenF = strtok(NULL,"/ :");
+    }
+
+    if(annioA-annioI != 0){
+        printf("%d Años",annioA-annioI);
+    }
+    if(mesA-mesI != 0){
+        printf(" %d Meses",mesA-mesI);
+    }
+    if(diaA-diaI != 0){
+        printf(" %d Dias",diaA-diaI);
+    }    
+    if(horaA-horaI < 0){
+        printf(" %d Horas",horaA-horaI+60);
+    }else{
+        printf(" %d Horas",horaA-horaI);
+    }   
+    if(minutosA-minutosI < 0){
+        printf(" %d Minutos",minutosA-minutosI+60);
+    }else{
+        printf(" %d Minutos",minutosA-minutosI);
+    }
+    //printf("Año: %d Mes: %d Dia: %d Hora: %d Minutos: %d",annioI,mesI,diaI,horaI,minutosI);
+
+}
+
 void uptime(){
     char **inicio;
     char *horaactual=(char*)malloc(100);
     char command[128];
     int i=0,size,aux;
-    strcpy(horaactual,obtener_hora());    
-    
-    strcpy(command,"C://Windows/System32/wbem/WMIC os get lastBootUpTime");
-    
+    strcpy(horaactual,obtener_hora());        
+    strcpy(command,"C://Windows/System32/wbem/WMIC os get lastBootUpTime");    
     tuberia(command,&size);
     inicio=(char**)malloc(size);
     for (i = 0; i < size; ++i){
         inicio[i]=(char*)malloc(128);   
+        strcpy(inicio[i],tuberia(command,&aux)[i]);
     }   
     
-    inicio=tuberia(command,&aux);
+    
     
     printf(inicio[0]);    
     printf(horaactual);    
-
+    calculate_uptime(inicio[0],horaactual);
     //en este punto debo trabajar con las dos cadenas de fecha para convertirlas en el uptime
 
 }
+
 
 // ***** SECCION DE MEMORIA *****
 float mem_total(){
@@ -214,7 +291,6 @@ char** disk_list(){
     int i=0,size,aux;
     tuberia(command,&size);
     disks=(char**)malloc(size);
-    printf("cantidad %d\n",size);
     for(i=0; i<size;i++){
         disks[i]=(char*)malloc(128);
         strcpy(disks[i],tuberia(command,&aux)[i]);
@@ -260,7 +336,7 @@ float* disk_space(){
         for(int j= 0; j<3;j++){
             spacevalue[i]=spacevalue[i]/1024;
         }
-        printf("Espacio Usado: %.2fGB\n",spacevalue[i]);
+        printf("%.2fGB\n",spacevalue[i]);
     }
     return spacevalue;
 }
@@ -309,6 +385,7 @@ char** net_list_ip(){
     strcpy(command,"C://Windows/System32/netsh interface ipv4 show ipaddresses");
     int i=0,size,cantidad_interfaces=0,interfaz = 0;
     consulta = tuberia(command,&size);
+
     while(consulta[i]){
         if(strstr(consulta[i],"Interfaz")){
             cantidad_interfaces++;
